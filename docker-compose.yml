@@ -10,14 +10,16 @@ services:
         condition: service_healthy
 
   db:
-    image: mysql:8.0
+    # The existing mysql_data volume was initialized with MySQL 8.4.
+    # Keep the server on that release line: MySQL does not support 8.4 -> 8.0 downgrades.
+    image: mysql:8.4
     environment:
       MYSQL_DATABASE: app_db
       MYSQL_USER: app_user
       MYSQL_PASSWORD: app_password
       MYSQL_ROOT_PASSWORD: root_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
