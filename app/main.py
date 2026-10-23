@@ -3,9 +3,7 @@ from sqlalchemy import inspect, text
 
 from app.database import Base, engine
 from app import models  # Registers SQLAlchemy models before creating tables.
-from app.routes import router
-
-app = FastAPI()
+from app.routers import balances, expenses, groups, settlements, users
 
 
 def add_user_group_column_if_needed() -> None:
@@ -33,12 +31,26 @@ def add_user_group_column_if_needed() -> None:
         connection.execute(text("CREATE INDEX ix_users_group_id ON users (group_id)"))
 
 
-@app.on_event("startup")
-def create_database_tables() -> None:
-    Base.metadata.create_all(bind=engine)
-    add_user_group_column_if_needed()
+def create_app() -> FastAPI:
+    application = FastAPI()
+
+    @application.on_event("startup")
+    def create_database_tables() -> None:
+        Base.metadata.create_all(bind=engine)
+        add_user_group_column_if_needed()
+
+    @application.get("/api/")
+    def api_root():
+        return {"message": "API is running"}
+
+    application.include_router(users.router)
+    application.include_router(groups.router)
+    application.include_router(expenses.router)
+    application.include_router(balances.router)
+    application.include_router(settlements.router)
+
+    return application
 
 
-app.include_router(router)
-
+app = create_app()
 

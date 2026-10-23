@@ -35,6 +35,26 @@ class GroupUsersResponse(GroupResponse):
     users: list[UserResponse]
 
 
+class GroupBalanceMemberResponse(BaseModel):
+    owes: dict[str, Decimal] = Field(default_factory=dict)
+
+
+class SettlementSuggestionResponse(BaseModel):
+    from_user_id: int
+    from_user: str
+    to_user_id: int
+    to_user: str
+    amount: float
+
+
+class SettlementSuggestionsResponse(BaseModel):
+    group_id: int
+    currency: str = "INR"
+    total_transactions: int
+    original_pairwise_count: int
+    suggestions: list[SettlementSuggestionResponse]
+
+
 class ExpenseCreate(BaseModel):
     group_id: int
     paid_by: int
