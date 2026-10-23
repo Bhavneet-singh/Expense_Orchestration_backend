@@ -28,7 +28,9 @@ def add_user_group_column_if_needed() -> None:
                 "FOREIGN KEY (group_id) REFERENCES groups (id)"
             )
         )
-        connection.execute(text("CREATE INDEX ix_users_group_id ON users (group_id)"))
+        connection.execute(
+            text("CREATE INDEX ix_users_group_id ON users (group_id)")
+        )
 
 
 def create_app() -> FastAPI:
@@ -43,14 +45,16 @@ def create_app() -> FastAPI:
     def api_root():
         return {"message": "API is running"}
 
-    application.include_router(users.router)
-    application.include_router(groups.router)
-    application.include_router(expenses.router)
-    application.include_router(balances.router)
-    application.include_router(settlements.router)
+    for router in (
+        users.router,
+        groups.router,
+        expenses.router,
+        balances.router,
+        settlements.router,
+    ):
+        application.include_router(router)
 
     return application
 
 
 app = create_app()
-

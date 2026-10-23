@@ -1,4 +1,8 @@
-"""Read-only settlement calculations."""
+"""Read-only settlement suggestions for a single group.
+
+Net balances are derived from expenses and their splits; no settlement records
+are included or written. Integer paise keeps the matching arithmetic exact.
+"""
 
 import heapq
 from typing import TypedDict
@@ -26,11 +30,17 @@ class SettlementSuggestions(TypedDict):
 
 
 def suggest_settlements(net_balances: dict[int, int]) -> list[tuple[int, int, int]]:
-    """Greedily match the largest debts and credits in O(n log n).
+    """Greedily match debtors and creditors using integer paise.
 
-    This produces a deterministic, small settlement set, but greedy matching is
-    not always the true minimum number of transactions; finding that exact
-    minimum is NP-hard. Ties are resolved by ascending user ID.
+    Each tuple is (debtor ID, creditor ID, amount in paise). The largest
+    outstanding debt and credit are paired, and the smaller amount is settled;
+    at least one side reaches zero on every iteration. For example, A owing B
+    100 and B owing C 100 nets to one suggestion: A pays C 100.
+
+    Heap ordering gives O(n log n) work and ascending user IDs break ties
+    deterministically. The result uses at most n - 1 payments, but greedy
+    matching is not guaranteed to find the absolute minimum, which is
+    NP-hard to optimize in general.
     """
     if sum(net_balances.values()) != 0:
         raise ValueError("Net balances must sum to zero")
@@ -69,7 +79,11 @@ def get_settlement_suggestions(
     db: Session,
     group_id: int,
 ) -> SettlementSuggestions:
-    """Build the group's read-only, user-facing settlement suggestion data."""
+    """Build read-only suggestions and names for one group's current balances.
+
+    Netting is group-scoped so obligations from unrelated groups never offset
+    one another. Suggestions are advice only and do not update the database.
+    """
     net_balances = get_net_balances(db, group_id)
     suggestions = suggest_settlements(net_balances)
     users = (
