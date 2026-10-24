@@ -102,9 +102,15 @@ Example expense request:
 }
 ```
 
-Interactive documentation is at `/docs` and OpenAPI JSON at `/openapi.json`. The included Postman collection uses `{{base_url}}`, defaulting to `http://localhost:8000`.
+Interactive Swagger UI documentation is at `/docs`, ReDoc is at `/redoc`, and
+the generated OpenAPI JSON is at `/openapi.json`. These are served by FastAPI,
+not OpenAI. See [API Documentation](./API_DOCUMENTATION.md) for endpoint
+details and examples. The included Postman collection uses `{{base_url}}`,
+defaulting to `http://localhost:8000`.
 
 ## Database design explanation
+
+For the detailed table and relationship reference, see [Database Schema Explanation](./DATABASE_SCHEMA.md).
 
 MySQL holds four related tables. IDs are auto-incrementing integers and money is stored as fixed-precision `NUMERIC(12, 2)`, not binary floating point.
 
