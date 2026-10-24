@@ -2,6 +2,10 @@
 
 A FastAPI and SQLAlchemy backend for sharing group expenses. It records who paid, calculates what each member owes, and provides read-only settlement suggestions.
 
+## Demo video
+
+Watch the project walkthrough on [Loom](https://www.loom.com/share/8e1aa371cfd54de3953ac8cc1c616dd9).
+
 ## Project setup steps
 
 ### Run with Docker (recommended)
@@ -38,7 +42,26 @@ The API is available on port `8000`. MySQL is exposed locally on port `3307` and
    uvicorn app.main:app --reload
    ```
 
-Run the test suite with `pytest`.
+## Running tests
+
+Activate the project's virtual environment, install the application
+dependencies, then run the tests from the repository root:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+The tests use Python's built-in `unittest` runner and create temporary
+in-memory SQLite databases, so a running MySQL server is not required. The test
+modules cover:
+
+- `tests/test_services.py`: equal expense splitting and cent rounding,
+  rejection of non-positive expenses and unknown groups, pairwise balances,
+  and net balances.
+- `tests/test_settlement_service.py`: settlement matching, balanced and
+  already-settled cases, deterministic tie handling, transaction-count bounds,
+  invalid unbalanced input, and API-level settlement suggestion responses
+  (including a missing-group response).
 
 ## Architecture overview
 
